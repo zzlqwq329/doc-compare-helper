@@ -1,0 +1,76 @@
+{
+  "schema_version": "0.1",
+  "purpose": "人工核对答案，仅用于评估，不得作为对比程序的输入",
+  "changes": [
+    {
+      "id": "C01",
+      "type": "modified",
+      "description": "生效日期由2026年11月1日改为2026年12月1日",
+      "old": {"block_id": "V1-P002", "line": 7, "section": "第一章 总则", "quote": "本制度自2026年11月1日起执行。"},
+      "new": {"block_id": "V2-P002", "line": 7, "section": "第一章 总则", "quote": "本制度自2026年12月1日起执行。"}
+    },
+    {
+      "id": "C02",
+      "type": "modified",
+      "description": "提交期限由10个工作日缩短为5个工作日",
+      "old": {"block_id": "V1-P003", "line": 11, "section": "第二章 报销与审批", "quote": "出差人员应在返程后10个工作日内提交报销申请。"},
+      "new": {"block_id": "V2-P004", "line": 13, "section": "第二章 报销与审批", "quote": "出差人员应在返程后5个工作日内提交报销申请。"}
+    },
+    {
+      "id": "C03",
+      "type": "modified",
+      "description": "住宿费上限由300元提高为400元",
+      "old": {"block_id": "V1-P004", "line": 13, "section": "第二章 报销与审批", "quote": "境内住宿费报销上限为每人每天300元。"},
+      "new": {"block_id": "V2-P005", "line": 15, "section": "第二章 报销与审批", "quote": "境内住宿费报销上限为每人每天400元。"}
+    },
+    {
+      "id": "C04",
+      "type": "modified",
+      "description": "增加负责人审批的金额门槛由超过2000元改为超过3000元",
+      "old": {"block_id": "V1-P005", "line": 15, "section": "第二章 报销与审批", "quote": "单笔报销金额超过2000元的，须增加负责人审批。"},
+      "new": {"block_id": "V2-P006", "line": 17, "section": "第二章 报销与审批", "quote": "单笔报销金额超过3000元的，须增加负责人审批。"}
+    },
+    {
+      "id": "C05",
+      "type": "modified",
+      "description": "初审人由项目负责人改为财务专员",
+      "old": {"block_id": "V1-P006", "line": 17, "section": "第二章 报销与审批", "quote": "报销申请由项目负责人初审。"},
+      "new": {"block_id": "V2-P007", "line": 19, "section": "第二章 报销与审批", "quote": "报销申请由财务专员初审。"}
+    },
+    {
+      "id": "C06",
+      "type": "modified",
+      "description": "电子发票在PDF文件之外增加提交发票号码的要求",
+      "old": {"block_id": "V1-P007", "line": 19, "section": "第二章 报销与审批", "quote": "电子发票须提交PDF文件。"},
+      "new": {"block_id": "V2-P008", "line": 21, "section": "第二章 报销与审批", "quote": "电子发票须提交PDF文件及发票号码。"}
+    },
+    {
+      "id": "C07",
+      "type": "deleted",
+      "description": "删除同时提交纸质行程单的要求",
+      "old": {"block_id": "V1-P008", "line": 21, "section": "第二章 报销与审批", "quote": "报销申请须同时提交纸质行程单。"},
+      "new": null
+    },
+    {
+      "id": "C08",
+      "type": "added",
+      "description": "新增首次报销前绑定本人收款银行卡的要求",
+      "old": null,
+      "new": {"block_id": "V2-P009", "line": 23, "section": "第二章 报销与审批", "quote": "首次报销前须绑定本人收款银行卡。"}
+    },
+    {
+      "id": "C09",
+      "type": "moved",
+      "description": "凭证保存条款从第三章移动到第二章，原文未变",
+      "old": {"block_id": "V1-P011", "line": 29, "section": "第三章 归档与监督", "quote": "财务人员应将报销凭证保存5年。"},
+      "new": {"block_id": "V2-P003", "line": 11, "section": "第二章 报销与审批", "quote": "财务人员应将报销凭证保存5年。"}
+    },
+    {
+      "id": "C10",
+      "type": "added",
+      "description": "新增身份证号码脱敏归档要求",
+      "old": null,
+      "new": {"block_id": "V2-P013", "line": 33, "section": "第三章 归档与监督", "quote": "报销材料中的身份证号码应脱敏后归档。"}
+    }
+  ]
+}
