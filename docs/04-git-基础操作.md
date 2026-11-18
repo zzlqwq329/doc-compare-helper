@@ -80,6 +80,8 @@ outputs/
 
 ## 四、建仓库（每个项目一次）
 
+在本地项目目录执行：
+
 ```bash
 cd "D:\Java\文档分析项目"
 git init
@@ -99,7 +101,7 @@ cd /d/Java/文档分析项目
 
 ```bash
 git status
-git add .
+git add .   (git add 文件路径)
 git status
 git commit -m "这一版做了什么"
 ```
@@ -126,7 +128,74 @@ git log --oneline --graph   # 有分支时看图形
 - `AM` 新增已暂存，但暂存之后又改过，需要再 `git add`
 - ` M` 已跟踪的文件被改过，还没 `git add`
 
-## 七、改坏了怎么退
+看某一次提交具体改了什么：
+
+```bash
+git show 5698079          # 看这次提交的全部改动
+git show --stat 5698079   # 只看改了哪些文件、各加减几行
+```
+
+### GitHub 网页上的文件列表
+
+仓库首页文件列表右边那一列，显示的是**最后一次改动这个文件的提交信息**，不是文件内容，也不是创建时间。
+
+所以刚 push 上去只有一个提交时，每个文件都显示同一条消息，看起来全一样——这是正常的，不是哪里配错了。
+
+提交多了以后这一列会分开：改过的文件显示改它那次提交，一直没动过的还是最早那条。点那行消息进去，就是那次提交的完整 diff：这次改了哪些文件、每行加了什么删了什么。
+
+### 一次提交该放多少东西
+
+一次提交 = 一件说得清的事。
+
+- `docs：补 git 基础操作笔记`
+- `Task 4：生成 Markdown 证据报告`
+- `修复：修改匹配在并列候选时误判`
+
+攒十件事一起提交的坏处：历史里只有一条，出问题想回退只能整条回退；网页上那列也永远是同一句话，看不出任何信息。`git commit -m "update"` 这种，过三天连自己都不知道改了什么。
+
+## 七、推到 GitHub / Gitee（每个项目一次）
+
+本地 `commit` 只写进项目里的 `.git/`，不上网。要出现在平台上，得先有远程地址，再推。
+
+### 1. 平台上建空仓库
+
+- **初始化选项一个都别勾**：Add README、Add .gitignore、Choose a license。本地已有这些文件，勾了会生成另一条互不相干的历史，push 会被拒（`rejected — fetch first`）
+- 建议 Public，找实习时面试官点得进来
+
+### 2. 本地关联远程
+
+```bash
+git remote add origin https://github.com/用户名/仓库名.git
+git branch -M main      # 本地默认叫 master，平台默认 main，统一一下
+git push -u origin main
+```
+
+`-u` 是把本地分支和远程分支绑起来，绑过以后直接 `git push` 就行，不用再写 `origin main`。
+
+### 3. 认证
+
+平台密码在这里无效，会报 `Support for password authentication was removed`。
+
+Windows 版 git 自带凭据管理器，第一次 push 通常会弹浏览器让你点授权。没弹的话手动生成 token：
+
+1. GitHub 头像 → Settings → 左侧最下 Developer settings
+2. Personal access tokens → Tokens (classic) → Generate new token (classic)
+3. Expiration 选 90 days，权限勾 `repo` 整块
+4. 复制 `ghp_` 开头那串（只显示一次）
+5. push 时 Username 填用户名，Password 粘贴 token
+
+凭据会被记住，以后不用再输。
+
+### 4. 确认
+
+```bash
+git remote -v      # 应看到两行 origin（fetch / push）
+git status -sb     # 分支名后面出现 ...origin/main
+```
+
+刷新仓库页面，文件都在就成功了。
+
+## 八、改坏了怎么退
 
 ```bash
 git status                  # 先确认是哪个文件
@@ -136,7 +205,7 @@ git restore --staged 文件名   # 只从暂存区拿出来，磁盘文件不动
 
 `git restore` 丢掉的东西找不回来，执行前先看清楚文件。
 
-## 八、这次踩过的坑
+## 九、这次踩过的坑
 
 ### 1. `bash: $'\302\226': command not found`
 
@@ -173,13 +242,12 @@ Git Bash 用的是 MinTTY 终端，不是 Windows 控制台，快捷键不一样
 
 想用 `Ctrl+Shift+C` / `Ctrl+Shift+V`：标题栏右键 → Options → Keys → 勾选 `Ctrl+Shift+letter shortcuts`。
 
-## 九、还没用到的
+## 十、还没用到的
 
 以后要用再学，现在不用管：
 
 - 分支：`git branch`、`git switch`、`git merge`
-- 远程仓库：`git remote add`、`git push`、`git pull`
+- 拉取远程更新：`git pull`、`git fetch`
 - 撤销一次已提交的改动：`git revert`
 - 临时存起来：`git stash`
-
-等要传到 GitHub 或 Gitee 的时候再回头看这一节。
+- 标签：`git tag`
