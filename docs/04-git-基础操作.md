@@ -157,6 +157,39 @@ git show --stat 5698079   # 只看改了哪些文件、各加减几行
 
 本地 `commit` 只写进项目里的 `.git/`，不上网。要出现在平台上，得先有远程地址，再推。
 
+### 什么时候 push
+
+`commit` 是「我这儿存好了」，`push` 是「别人能看到了」。默认节奏是 commit 完就 push，别攒一堆。
+
+**这些时候要 push：**
+
+- **一天收工前。** 代码只在本地磁盘上，硬盘坏了、电脑丢了就全没了。push 过就有两份
+- **换电脑、换环境、明天要接着写之前。** 不然另一台 `git pull` 拉不到你今天的改动
+- **想让别人看到之前。** 放进简历想让面试官点进来，就得先 push
+- **合并到 `main` 之后。** 主分支本来就该随时是能用的状态
+
+**这些时候先别 push：**
+
+- 代码跑不起来、测试是红的。远程是别人会看到的状态，别把半截东西放上去
+- 你自己还没验证过这批改动
+- 里面有密码、密钥、`.env`、数据库连接串。push 之后就留痕了，改密码也删不干净
+
+拿不准就开一条分支推：`git push -u origin 分支名`。分支写坏了删掉，不影响 `main`。
+
+**怎么知道有没有没推的：**
+
+```bash
+git status -sb
+```
+
+第一行长这样：
+
+```
+## main...origin/main [ahead 2]
+```
+
+`ahead 2` 就是「本地有 2 个提交没推上去」。不显示 `[ahead N]` 就是干净的，本地远程一致。
+
 ### 1. 平台上建空仓库
 
 - **初始化选项一个都别勾**：Add README、Add .gitignore、Choose a license。本地已有这些文件，勾了会生成另一条互不相干的历史，push 会被拒（`rejected — fetch first`）
@@ -242,12 +275,93 @@ Git Bash 用的是 MinTTY 终端，不是 Windows 控制台，快捷键不一样
 
 想用 `Ctrl+Shift+C` / `Ctrl+Shift+V`：标题栏右键 → Options → Keys → 勾选 `Ctrl+Shift+letter shortcuts`。
 
-## 十、还没用到的
+## 十、克隆别人的仓库
 
-以后要用再学，现在不用管：
+本地没有项目、只有平台地址时用它。接手别人的项目，第一条命令是 clone，不是 init。
 
-- 分支：`git branch`、`git switch`、`git merge`
-- 拉取远程更新：`git pull`、`git fetch`
-- 撤销一次已提交的改动：`git revert`
-- 临时存起来：`git stash`
-- 标签：`git tag`
+```bash
+git clone https://github.com/某人/某仓库.git
+git clone https://github.com/某人/某仓库.git 自定义目录名
+```
+
+clone 一次干三件事：下载全部历史、自动配好 `origin`、自动建本地分支并跟踪远程分支。所以克隆下来的仓库不需要再 `git remote add`。
+
+`init` 和 `clone` 的区别一句话：**从零开始用 init，拿现成的用 clone**。
+
+## 十一、分支
+
+分支就是一条独立的提交线。改需求、试想法、修 bug 时开一条，写坏了大不了删掉，主分支不受影响。
+
+```bash
+git branch                  # 列出本地分支，带 * 的是当前分支
+git branch 分支名            # 新建分支，建完人还在原分支上
+git switch 分支名            # 切换过去
+git switch -c 分支名         # 新建并直接切过去（最常用）
+git branch -d 分支名         # 删掉已合并的分支
+git branch -D 分支名         # 强制删，未合并也删（会丢改动）
+```
+
+旧教程里的 `git checkout` 也能切分支，但 `checkout` 兼职干好几件事（还能恢复文件），容易搞混。新版本统一用 `switch` 切分支、`restore` 恢复文件。
+
+### 合并
+
+站在目标分支上执行，把另一条分支的改动并进来：
+
+```bash
+git switch main
+git merge 分支名
+```
+
+合并完那条分支就没用了，`git branch -d 分支名` 删掉。
+
+### 分支和远程
+
+```bash
+git push -u origin 分支名    # 第一次推某条分支要带 -u
+git branch -a               # 连远程分支一起列出来
+git switch 远程已有的分支名   # 新版本会自动建本地分支并跟踪远程
+```
+
+## 十二、拉取远程更新
+
+一个地方 push 了，另一个地方得先拉下来才能接着改。
+
+```bash
+git pull        # 拉取并合并到当前分支，最常用
+git fetch       # 只拉取，不动本地文件
+```
+
+`pull` = `fetch` + `merge`。一个人开发直接 `pull`；想先看看远程改了什么再决定合不合，用 `fetch`。
+
+**只要 push 被拒**（`rejected — fetch first` 或 `non-fast-forward`），意思就是远程有你本地没有的提交，先 `git pull` 再 push。
+
+## 十三、冲突怎么处理
+
+两边改了同一个文件的同一处，或者 pull 下来时本地有未提交的改动，就会冲突。git 会停下来，在文件里留下标记：
+
+```
+<<<<<<< HEAD
+本地这版的内容
+=======
+远程或对方分支那版的内容
+>>>>>>> 分支名
+```
+
+处理步骤：
+
+1. `git status` 看哪些文件冲突，状态是 `both modified`
+2. 打开文件，人工决定留哪段、怎么拼，**把 `<<<<<<<`、`=======`、`>>>>>>>` 三行标记删干净**
+3. `git add 冲突文件`
+4. `git commit`（不用带 `-m`，git 会预填一条合并信息）
+
+处理到一半想反悔，`git merge --abort` 回到合并前的状态。
+
+别用「随便选一边」应付。冲突点往往是两个人都动过的地方，谁对得自己判断。
+
+## 十四、暂时用不到的
+
+- 撤销一次已提交的改动：`git revert 提交号`（生成一次反向提交，历史保留）
+- 临时存起来再切分支：`git stash`、`git stash pop`
+- 打版本标记：`git tag v1.0`、`git push --tags`
+- 挑单个提交搬过来：`git cherry-pick 提交号`
+- 改写历史：`git commit --amend`、`git rebase -i`（只在本地未推送时用，动过远程的提交会害到别人）
