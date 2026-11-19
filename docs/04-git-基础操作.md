@@ -275,6 +275,31 @@ Git Bash 用的是 MinTTY 终端，不是 Windows 控制台，快捷键不一样
 
 想用 `Ctrl+Shift+C` / `Ctrl+Shift+V`：标题栏右键 → Options → Keys → 勾选 `Ctrl+Shift+letter shortcuts`。
 
+### 6. `fatal: pathspec 'docs/?[200~' did not match any files`
+
+粘贴路径时，终端塞进了一串转义标记（bracketed paste 的开头标记 `\e[200~`），Git Bash 不认这个标记，把它当成了文件名的一部分。
+
+解法：手打路径，或者打前几个字按 `Tab` 补全。要给整个目录就直接写 `git add docs/` 或 `git add .`。
+
+### 7. `schannel: server closed abruptly (missing close_notify)`
+
+push 或 fetch 时连接被断开。`schannel` 是 Windows 自带的 TLS 实现，这句话的意思是它在等服务器发「我要关了」的信号，结果连接直接被掐断。
+
+多数情况是网络抖动，重试一次就好，这和你的操作无关。反复出现再换 TLS 后端：
+
+```bash
+git config --global http.sslBackend openssl
+```
+
+判断有没有真推上去，不要靠感觉：`git status -sb` 里分支名后面跟着 `...origin/分支名`，或者 `git branch -a` 里能看到 `remotes/origin/分支名`，才算成功。
+
+### 8. 推了分支，网页上却找不到
+
+两个原因，先分清是哪个：
+
+- **看错分支**：GitHub 仓库页面左上角有个分支下拉，默认停在 `main`。刚推的分支要切过去才看得到。分支上的新文件，`main` 页面本来就不显示
+- **根本没推上去**：`git status -sb` 里分支名后面没有 `...origin/分支名`，就说明没跟踪、没推成功
+
 ## 十、克隆别人的仓库
 
 本地没有项目、只有平台地址时用它。接手别人的项目，第一条命令是 clone，不是 init。
@@ -314,6 +339,30 @@ git merge 分支名
 
 合并完那条分支就没用了，`git branch -d 分支名` 删掉。
 
+两边都动过的时候，git 会额外生成一次**合并提交**，输出：
+
+```
+Merge made by the 'ort' strategy.
+ docs/05-分支练习.md | 3 +++
+```
+
+`'ort'` 是 git 的默认合并算法名，念出来是 "ort"，不用管它。
+
+这时 `git log --oneline --graph` 能看出分叉和汇合：
+
+```
+*   f6c17f8 Merge branch 'practice/branch-test'
+|\
+| * 3fe2d42 docs:新增分支练习文件
+* | 6e9a767 Update README.md
+|/
+* 8193fd7 docs：更新
+```
+
+读法：`|\` 是分叉点，`|/` 是汇合点，`*   `（星号后三个空格）表示这是一次合并提交，上下两行分别是两条线的最后一次提交。
+
+如果合并时 `main` 一次都没动过，git 会直接「快进」（fast-forward），不生成合并提交，历史保持一条直线。
+
 ### 分支和远程
 
 ```bash
@@ -334,6 +383,30 @@ git fetch       # 只拉取，不动本地文件
 `pull` = `fetch` + `merge`。一个人开发直接 `pull`；想先看看远程改了什么再决定合不合，用 `fetch`。
 
 **只要 push 被拒**（`rejected — fetch first` 或 `non-fast-forward`），意思就是远程有你本地没有的提交，先 `git pull` 再 push。
+
+### pull 成功长什么样
+
+```
+Updating 8193fd7..6e9a767
+Fast-forward
+ README.md | 2 +-
+```
+
+- `Updating A..B`：本地从 `8193fd7` 前进到 `6e9a767`
+- `Fast-forward`：本地这段时间没有新提交，git 直接把指针挪过去，不产生合并提交，历史还是一条直线
+- 如果这里换成 `Merge made by the 'ort' strategy.`，说明两边都动过，生成了合并提交（见第十一节）
+- 最后那行 `README.md | 2 +-` 是这次拉下来改动的文件清单
+
+### 拉之前先看工作区
+
+本地有未提交的改动时 `pull` 可能被拒（`Your local changes would be overwritten`）。两种处理：
+
+```bash
+git stash        # 先存起来，pull 完再 git stash pop 放回来
+git commit -m "..."   # 或者干脆先提交
+```
+
+别用 `git checkout .` 硬来，那会把改动直接丢掉。
 
 ## 十三、冲突怎么处理
 
