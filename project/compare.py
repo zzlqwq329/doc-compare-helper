@@ -174,7 +174,7 @@ def main():
     v2_blocks = json.loads(v2_text)
     print(f"读入 V1正文：{len(v1_blocks)} 段，V2正文：{len(v2_blocks)} 段")
 
-    items = compare_version(v1_blocks, v2_blocks)
+    items = compare_versions(v1_blocks, v2_blocks)
 
     output_path = root / "outputs" / "comparison.json"
     output_text = json.dumps({"items": items}, ensure_ascii=False, indent=2)
