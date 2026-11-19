@@ -172,6 +172,21 @@ def main():
     for block in review_v2_blocks:
         items.append({"type": "needs_review", "old": None, "new": block})
 
+    return items
+
+def main():
+    root = Path(__file__).resolve().parents[1]
+    v1_path = root / "outputs" / "blocks-v1.json"
+    v2_path = root / "outputs" / "blocks-v2.json"
+
+    v1_text = v1_path.read_text(encoding="utf-8")
+    v2_text = v2_path.read_text(encoding="utf-8")
+    v1_blocks = json.loads(v1_text)
+    v2_blocks = json.loads(v2_text)
+    print(f"读入 V1正文：{len(v1_blocks)} 段，V2正文：{len(v2_blocks)} 段")
+
+    items = compare_version(v1_blocks, v2_blocks)
+
     output_path = root / "outputs" / "comparison.json"
     output_text = json.dumps({"items": items}, ensure_ascii=False, indent=2)
     output_path.write_text(output_text + "\n", encoding="utf-8")
