@@ -22,18 +22,7 @@ def unique_best_candidate(candidates: list[tuple[str, float]]) -> str | None:
     best_ids = [block_id for block_id, score in candidates if score == best_score]
     return best_ids[0] if len(best_ids) == 1 else None
 
-
-def main():
-    root = Path(__file__).resolve().parents[1]
-    v1_path = root / "outputs" / "blocks-v1.json"
-    v2_path = root / "outputs" / "blocks-v2.json"
-
-    v1_text = v1_path.read_text(encoding="utf-8")
-    v2_text = v2_path.read_text(encoding="utf-8")
-    v1_blocks = json.loads(v1_text)
-    v2_blocks = json.loads(v2_text)
-    print(f"读入 V1正文：{len(v1_blocks)} 段，V2正文：{len(v2_blocks)} 段")
-
+def compare_versions(v1_blocks, v2_blocks):
     v1_groups = group_by_text(v1_blocks)
     v2_groups = group_by_text(v2_blocks)
 
