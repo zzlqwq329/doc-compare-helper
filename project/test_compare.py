@@ -3,16 +3,19 @@
 
 三个问题（想清楚答案，写在这段 docstring 里）：
 1. 重构后 comparison.json 和改之前一模一样，能不能说明重构没改变行为？边界在哪？
-        不能、输出一致只证明已经执行到的分支没被改坏。重构改的是代码结构，
-             最容易出错的地方恰恰是那些这次没执行到的分支——它们在对比的时候不会露出任何痕迹
-        边界：证明“没坏”，不证明“没隐患”。
+   不能。输出一致只证明已经执行到的分支没被改坏。重构改的是代码结构，
+   最容易出错的地方恰恰是那些这次没执行到的分支——它们在对比的时候不会露出任何痕迹。
+   边界：证明“没坏”，不证明“没隐患”。
 2. 如果 compare.py 里第 100 行那句双向校验被误删，这个测试靠什么发现？
-        发现不了，给的数据过于简单
+   发现不了，给的数据过于简单。
+   样本里的 6 对修改在各自章节内都是一对一的，没有任何两个旧段落争同一个新段落的情况，
+   所以删掉双向校验对这份样本的结果毫无影响——这也解释了为什么必须在 test_units.py 单独造一组 A、C 争 B 的单元测试。
 3. 为什么只断言「expected 的每条都在 items 里」不够？
-        会漏掉误报只查了漏报
+   会漏掉误报，只查了漏报。
 """
-from pathlib import Path
+
 import json
+from pathlib import Path
 
 from compare import compare_versions
 from reader import parse_blocks
@@ -28,7 +31,7 @@ def build_items():
 
 
 def load_expected_changes():
-    """事先写好的标准答案"""
+    """事先写好的标准答案。"""
     path = ROOT / "fixtures" / "expected-changes.json"
     return json.loads(path.read_text(encoding="utf-8"))["changes"]
 
@@ -47,13 +50,11 @@ def test_比对结果与人工标注答案一致():
     actual_keys = {make_key(i["type"], i["old"], i["new"]) for i in items}
     expected_keys = {make_key(c["type"], c["old"], c["new"]) for c in expected}
 
-
     # 「从左边拿掉右边也有的内容」，剩下的就是漏报
     missing = expected_keys - actual_keys
-    #extra抓的是误报
+    # extra 抓的是误报；人工答案只记录变化项，因此排除未变（unchanged）段落
     extra = {k for k in actual_keys - expected_keys if k[0] != "unchanged"}
 
     assert not missing, f"人工标注了但程序没识别出来的变化: {missing}"
     assert not extra, f"程序识别出来但人工标注里没有的变化: {extra}"
-
 

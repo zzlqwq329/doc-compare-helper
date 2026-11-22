@@ -2,7 +2,9 @@ from pytest import MonkeyPatch
 
 from test_compare import build_items, load_expected_changes, make_key
 
+
 # 它检查的是：相似度门槛调高后，程序会不会漏掉更多人工已经确认的修改。
+# guard（防护测试）：它要防的是重构时有人把阈值在函数里写死，或者漏掉了 score < MIN_SIMILARITY 这道门槛判断。
 def test_higher_similarity_threshold_loses_annotated_modifications(
     monkeypatch: MonkeyPatch,
 ) -> None:
@@ -27,3 +29,4 @@ def test_higher_similarity_threshold_loses_annotated_modifications(
         f"原门槛漏报 {sorted(baseline_missing)!r}，"
         f"提高后漏报 {sorted(stricter_missing)!r}"
     )
+
