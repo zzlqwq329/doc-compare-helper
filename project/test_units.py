@@ -86,3 +86,32 @@ def test_compare_versions_requires_reciprocal_best_candidate() -> None:
 
     assert actual == expected, f"只应确认互选配对 {expected!r}，实际为 {actual!r}"
 
+# 这条测试防的是：两个新版段落并列第一时，程序随便挑一个判为「修改、新增、删除，或者漏掉一段」。
+def test_compare_versions_marks_all_tied_candidates_for_review() -> None:
+    old = _make_block("V1", 1, "出差人员应在返程后10个工作日内提交报销申请。")
+    revised_text = "出差人员应在返程后5个工作日内提交报销申请。"
+    first = _make_block("V2", 1, revised_text)
+    second = _make_block("V2", 2, revised_text)
+
+    items = compare_versions([old], [first, second])
+
+    actual = sorted(
+        (
+            item["type"],
+            item["old"]["block_id"] if item["old"] is not None else "",
+            item["new"]["block_id"] if item["new"] is not None else "",
+        )
+        for item in items
+    )
+    expected = sorted(
+        [
+            ("needs_review", old["block_id"], ""),
+            ("needs_review", "", first["block_id"]),
+            ("needs_review", "", second["block_id"]),
+        ]
+    )
+    assert actual == expected, (
+        f"两条新版候选并列时，三个段落应各有一条待核对记录。"
+        f"预期 {expected!r}，实际 {actual!r}"
+    )
+

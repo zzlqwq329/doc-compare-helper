@@ -5,6 +5,7 @@ from test_compare import build_items, load_expected_changes, make_key
 
 # 它检查的是：相似度门槛调高后，程序会不会漏掉更多人工已经确认的修改。
 # guard（防护测试）：它要防的是重构时有人把阈值在函数里写死，或者漏掉了 score < MIN_SIMILARITY 这道门槛判断。
+# !r 会给字符串自动套上引号、把换行符显示成 \n，专门用来在测试断言和调试日志里防止「隐形字符」或「类型混淆」骗过眼睛。
 def test_higher_similarity_threshold_loses_annotated_modifications(
     monkeypatch: MonkeyPatch,
 ) -> None:
