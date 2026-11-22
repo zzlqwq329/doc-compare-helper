@@ -9,7 +9,7 @@
 2. 如果 compare.py 里第 100 行那句双向校验被误删，这个测试靠什么发现？
         发现不了，给的数据过于简单
 3. 为什么只断言「expected 的每条都在 items 里」不够？
-        漏掉误报只查了漏报
+        会漏掉误报只查了漏报
 """
 from pathlib import Path
 import json
@@ -28,6 +28,7 @@ def build_items():
 
 
 def load_expected_changes():
+    """事先写好的标准答案"""
     path = ROOT / "fixtures" / "expected-changes.json"
     return json.loads(path.read_text(encoding="utf-8"))["changes"]
 
@@ -46,7 +47,10 @@ def test_比对结果与人工标注答案一致():
     actual_keys = {make_key(i["type"], i["old"], i["new"]) for i in items}
     expected_keys = {make_key(c["type"], c["old"], c["new"]) for c in expected}
 
+
+    # 「从左边拿掉右边也有的内容」，剩下的就是漏报
     missing = expected_keys - actual_keys
+    #extra抓的是误报
     extra = {k for k in actual_keys - expected_keys if k[0] != "unchanged"}
 
     assert not missing, f"人工标注了但程序没识别出来的变化: {missing}"
