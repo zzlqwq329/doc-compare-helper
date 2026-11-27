@@ -1,16 +1,28 @@
 # 文档对比与证据报告助手
 
-这是一个用于实习准备、持续迭代的学习项目。输入同一份制度的两个版本，识别变化，并输出能定位回原文的报告。
-
-项目根目录统一为 `D:\Java\文档分析项目`。后续代码、样本、文档和运行输出都在此目录下按用途组织。
-
-当前先做本地 Markdown 文档处理。后续沿用“Java 管理业务和任务、Python 执行分析”的方向，每完成一层再扩展。
+输入同一份制度的两个 Markdown 版本，识别未变、修改、删除、新增和跨章移动。对无法唯一配对的候选标记为待核对。对比结果保留版本、段落编号、章节、行号和原文，方便逐条复核。
 
 ## 当前进度
 
-- 已完成读取、分段和原文精确匹配，固定样本得到 5 对未变和 1 对移动。
-- 当前练习是 [Task 3：完整差异识别](docs/03-third-task.md)。
-- 后续依次交付 Markdown 证据报告、支持文本 PDF 与模型解释的 Python 小版本，再接入 Java。验收条件见 [项目推进记录](docs/progress.md)。
+- [Task 3：完整差异识别](docs/03-third-task.md) 已完成。固定样本识别出 6 处修改、2 处新增、1 处删除和 1 处跨章移动，10 处变化与人工标注一致。
+- 下一步是 [Task 4：Markdown 证据报告](docs/04-fourth-task.md)，计划将对比 JSON 转成带原文引用的报告。详细进度见 [项目推进记录](docs/progress.md)。
+
+## 运行示例
+
+在仓库根目录运行以下命令。文档解析和对比只使用 Python 标准库，已在 Python 3.14 下验证。
+
+```sh
+python project/reader.py
+python project/compare.py
+```
+
+打开 `outputs/comparison.json` 查看结果。例如，报销期限由「10个工作日」改为「5个工作日」，可分别回到[旧版第 11 行](samples/expense-v1.md#L11)和[新版第 13 行](samples/expense-v2.md#L13)核对。
+
+在 Python 虚拟环境中安装 pytest 后运行 Task 3 的测试。
+
+```sh
+python -m pytest project/test_compare.py project/test_guard.py project/test_units.py -q
+```
 
 ## 怎么一起推进
 
